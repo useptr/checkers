@@ -5,11 +5,13 @@ import com.example.checkers.enums.PieceType;
 import com.example.checkers.models.Board;
 import com.example.checkers.models.Piece;
 import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -34,28 +36,51 @@ public class MainScreen {
     private VBox rootVBox = new VBox();
     private MenuBar menuBar = new MenuBar();
     private Menu gameMenu = new Menu("Игра");
-    private MenuItem resetMenuItem = new MenuItem("Сбросить");
+    private MenuItem restartMenuItem = new MenuItem("Сбросить Игру");
+    private MenuItem resetMenuItem = new MenuItem("Сбросить Поле");
+    private MenuItem importMenuItem = new MenuItem("Импорт");
+    private MenuItem exportMenuItem = new MenuItem("Экспорт");
+    private VBox infoVBox = new VBox();
+    private Label isTurnLabel = new Label("");
+    private Label scoreLabel = new Label("0 : 0");
    private StackPane fieldStackPane = new StackPane();
     private GridPane fieldGridPane = new GridPane();
-    private final Image crownImage = new Image(getClass().getResource("/assets/crown.png").toString(), 50, 50, false, false);
+    private final Image crownImage = new Image(getClass().getResource("/assets/crown.png").toString(), 50, 50, true, false);
+
+    public void setBoardMouseHandler(EventHandler<MouseEvent> boardMouseHandler) {
+        this.boardMouseHandler = boardMouseHandler;
+    }
+
+    private EventHandler<MouseEvent> boardMouseHandler = null;
     public MainScreen(Stage stage, double width, double height) {
         this.width = width;
         this.height = height;
         this.stage = stage;
 
+        gameMenu.getItems().add(restartMenuItem);
         gameMenu.getItems().add(resetMenuItem);
+        gameMenu.getItems().add(importMenuItem);
+        gameMenu.getItems().add(exportMenuItem);
         menuBar.getMenus().add(gameMenu);
         rootVBox.getChildren().add(menuBar);
+
+        infoVBox.setAlignment(Pos.CENTER);
+        infoVBox.getChildren().add(isTurnLabel);
+        infoVBox.getChildren().add(scoreLabel);
+        rootVBox.getChildren().add(infoVBox);
 
         fieldGridPane.setAlignment(Pos.CENTER);
         fieldStackPane.getChildren().add(fieldGridPane);
         rootVBox.getChildren().add(fieldStackPane);
         fieldStackPane.prefHeightProperty().bind(rootVBox.heightProperty().subtract(menuBar.heightProperty()));
 
-        scene = new Scene(rootVBox, 600, 500);
+        scene = new Scene(rootVBox, this.width, this.height);
         this.stage.setTitle("Checkers");
         this.stage.setScene(scene);
         this.stage.show();
+    }
+    public Stage getStage() {
+        return stage;
     }
     public void drawPieces(Board board) {
         Piece[][] field = board.getField();
@@ -98,6 +123,9 @@ public class MainScreen {
         circle.setStyle("-fx-fill: " + color + ";");
         pane.getChildren().add(circle);
         ImageView imageView = new ImageView(crownImage);
+
+        imageView.fitWidthProperty().bind(pane.widthProperty().divide(1.5));
+        imageView.fitWidthProperty().bind(pane.heightProperty().divide(1.5));
         pane.getChildren().add(imageView);
     }
     private void drawPiece(StackPane pane, PieceColor color, PieceType type) {
@@ -107,12 +135,26 @@ public class MainScreen {
            drawKing( pane,  color);
         }
     }
-    public void initField(final int width, final int height, EventHandler<MouseEvent> mouseHandle) {
+    public void setImportMenuItemEvent(EventHandler<ActionEvent> event) {
+        importMenuItem.setOnAction(event);
+    }
+    public void setExportMenuItem(EventHandler<ActionEvent> event) {
+        exportMenuItem.setOnAction(event);
+    }
+    public void setResetMenuItem(EventHandler<ActionEvent> event) {
+        resetMenuItem.setOnAction(event);
+    }
+    public void setRestartMenuItem(EventHandler<ActionEvent> event) {
+        restartMenuItem.setOnAction(event);
+    }
+    public void initField(final int width, final int height) {
         int count = 0;
+
         for (int y = 0; y< width; y++) {
             for (int x = 0; x < height; x++) {
                 StackPane pane = new StackPane();
-                pane.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseHandle);
+//                pane.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseHandle);
+                pane.addEventFilter(MouseEvent.MOUSE_PRESSED,boardMouseHandler);
                 pane.setAlignment(Pos.CENTER);
                 String color = getBgColor(count);
 
@@ -128,5 +170,12 @@ public class MainScreen {
 
     public GridPane getFieldGridPane() {
         return fieldGridPane;
+    }
+
+    public void setScoreLabel(String score) {
+        scoreLabel.setText(score);
+    }
+    public void setIsTurnLabel(String score) {
+        isTurnLabel.setText(score);
     }
 }

@@ -1,6 +1,9 @@
 package com.example.checkers.models;
 
+import com.example.checkers.dtos.BoardDTO;
 import com.example.checkers.enums.PieceColor;
+
+import java.io.ObjectInputStream;
 
 public class Checkers {
     Board board = new Board();
@@ -24,13 +27,16 @@ public class Checkers {
             if (board.isPieceShouldRemovedPiece()) {
                 if (board.positionsAreEqual(pieceThatShouldRemove.getPos(), prev))
                     pieceMoved = getBoard().movePieceTo(prev, next);
-            } else {
-                if (board.canRemovePiece(color)) {
-                    if (board.pieceCanRemovePiece(prevPiece))
-                        pieceMoved = getBoard().movePieceTo(prev, next);
-                } else
+            }
+        else {
+            if (board.canRemovePiece(color)) {
+                if (board.pieceCanRemovePiece(prevPiece))
                     pieceMoved = getBoard().movePieceTo(prev, next);
             }
+            else
+                pieceMoved = getBoard().movePieceTo(prev, next);
+            }
+
 
             if (pieceMoved)  {
                 Piece piece = getBoard().getField()[next.y][next.x];
@@ -44,11 +50,17 @@ public class Checkers {
                 }
             } else
                 System.out.println("invalid positions"); // log
+            checkEndGame();
         }
         return pieceMoved;
     }
     public void restart() {
         whiteCount=blackCount=0;
+        isTurn=PieceColor.WHITE;
+        board.reset();
+    }
+    public void reset() {
+        isTurn=PieceColor.WHITE;
         board.reset();
     }
     public void changeMoveColor() {
@@ -66,5 +78,50 @@ public class Checkers {
     public Board getBoard() {
         return board;
     }
+    public BoardDTO getBoardDTO(){
+        return new BoardDTO(board.getBoard(), isTurn);
+    }
+    public String getBoardString() {
+        return board.getBoard();
+    }
+    public String getScore() {
+        String score = whiteCount + " : " + blackCount;
+        return score;
+    }
+    public String getTurn() {
+        String turn = "Сейчас ходят ";
+        if (isTurn == PieceColor.BLACK)
+            turn+= "черные";
+        else
+            turn+= "белые";
+        return turn;
+    }
+    public void setBoardFromString(ObjectInputStream in) {
+        try{
+            BoardDTO boardDTO = (BoardDTO) in.readObject();
+            if (board.setBoard(boardDTO.board))
+                isTurn = boardDTO.isTurn;
+        }catch(Exception e){System.out.println(e);}
+    }
+    public void checkEndGame() {
+        boolean isEndGame = false;
+        if (board.getCountBlackPieces() <= 0) {
+            isEndGame = true;
+            whiteCount++;
+        }
+        else if (board.getCountWhitePieces() <= 0) {
+            isEndGame = true;
+            blackCount++;
+        }
+        else if (!board.canMovePiece(isTurn)) {
+            isEndGame = true;
+            if (isTurn == PieceColor.BLACK)
+                whiteCount++;
+            else
+                blackCount++;
+        }
+        if (isEndGame)
+            reset();
 
+    }
 }

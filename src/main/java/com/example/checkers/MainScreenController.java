@@ -3,14 +3,17 @@ package com.example.checkers;
 import com.example.checkers.enums.PieceType;
 import com.example.checkers.models.Checkers;
 import com.example.checkers.models.Position;
-import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.*;
 
 public class MainScreenController {
     private Checkers model = new Checkers();
@@ -18,9 +21,62 @@ public class MainScreenController {
     Position prev=null;
     Position next=null;
     public MainScreenController(Stage stage) {
-        view = new MainScreen(stage, 600, 500);
-        view.initField(model.getBoard().getWidth(), model.getBoard().getHeight(), this::pieceMousePressed);
-        view.drawPieces(model.getBoard());
+        view = new MainScreen(stage, 600, 700);
+        view.setBoardMouseHandler(this::pieceMousePressed);
+        view.initField(model.getBoard().getWidth(), model.getBoard().getHeight());
+        view.setImportMenuItemEvent(this::importMenuItemSelected);
+        view.setExportMenuItem(this::exportMenuItemSelected);
+        view.setResetMenuItem(this::resetMenuItemSelected);
+        view.setRestartMenuItem(this::restartMenuItemSelected);
+//        view.drawPieces(model.getBoard());
+        updateView();
+    }
+    public void setScore() {
+        view.setScoreLabel(model.getScore());
+    }
+    public void setTurn() {
+        view.setIsTurnLabel(model.getTurn());
+    }
+    public void exportMenuItemSelected(ActionEvent event){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Экспортировать доску");//Заголовок диалога
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter( "BOARD files (*.board)","*.board");//Расширение
+        fileChooser.getExtensionFilters().add(extFilter);
+        File file = fileChooser.showSaveDialog(view.getStage());//Указываем текущую сцену
+        if (file != null) {
+            try{
+                FileOutputStream fout=new FileOutputStream(file.getPath());
+                ObjectOutputStream out=new ObjectOutputStream(fout);
+                out.writeObject(model.getBoardDTO());
+                out.flush();
+                out.close();
+            }catch(Exception e){System.out.println(e);}
+        }
+    }
+    public void resetMenuItemSelected(ActionEvent event) {
+        model.reset();
+        updateView();
+    }
+    public void restartMenuItemSelected(ActionEvent event) {
+        model.restart();
+        updateView();
+    }
+    public void importMenuItemSelected(ActionEvent event){
+        FileChooser fileChooser = new FileChooser();//Класс работы с диалогом выборки и сохранения
+        fileChooser.setTitle("Импортировать доску");//Заголовок диалога
+        FileChooser.ExtensionFilter extFilter =
+                new FileChooser.ExtensionFilter( "BOARD files (*.board)","*.board");//Расширение
+        fileChooser.getExtensionFilters().add(extFilter);
+        File file = fileChooser.showOpenDialog(view.getStage());//Указываем текущую сцену CodeNote.mainStage
+        if (file != null) {
+            try{
+                ObjectInputStream in=new ObjectInputStream(new FileInputStream(file.getPath()));
+                model.setBoardFromString(in);
+                in.close();
+            }catch(Exception e){System.out.println(e);}
+        }
+        updateView();
+//        view.drawPieces(model.getBoard());
     }
     public StackPane getStackPane(Node node) {
         StackPane stackPane = null;
@@ -53,6 +109,8 @@ public class MainScreenController {
             stackPane = (StackPane)node;
         } else if (node instanceof Circle && node.getParent() instanceof StackPane) {
             stackPane = (StackPane)node.getParent();
+        }else if (node instanceof ImageView && node.getParent() instanceof StackPane) {
+            stackPane = (StackPane)node.getParent();
         }
         return stackPane;
     }
@@ -75,7 +133,16 @@ public class MainScreenController {
         } else if (node instanceof Circle) {
             type = PieceType.CHECKER;
         }
+        else if (node instanceof ImageView) {
+            type = PieceType.CHECKER;
+        }
         return type;
+    }
+    public void updateView() {
+//        model.checkEndGame();
+        setTurn();
+        setScore();
+        view.drawPieces(model.getBoard());
     }
     public void pieceMousePressed(MouseEvent mouseEvent) {
         Node node = mouseEvent.getPickResult().getIntersectedNode();
@@ -100,7 +167,7 @@ public class MainScreenController {
                 prev = next = null;
             }
 //                if (pieceMoved) {
-                    view.drawPieces(model.getBoard());
+        updateView();
 //                }
             }
 }
