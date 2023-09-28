@@ -185,11 +185,15 @@ public class Board {
         boolean noObstaclesOnDiagonal = true;
         for (int i=nextCoordinate(x, endX), j =nextCoordinate(y, endY); i != endX && j!=endY && noObstaclesOnDiagonal && !kingCanRemovePiece;i=nextCoordinate(i, endX), j =nextCoordinate(j, endY)) {
             if (field[j][i] != null) {
-                boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].getColor() != piece.getColor() && field[nextCoordinate(j, endY)][nextCoordinate(i, endX)] == null;
                 if (field[j][i].getColor() == piece.getColor())
                     noObstaclesOnDiagonal = false;
-                else if (existOpponentPieceAndEmptyCeilAfter)
-                    kingCanRemovePiece = true;
+                boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].getColor() != piece.getColor() && field[nextCoordinate(j, endY)][nextCoordinate(i, endX)] == null;
+                    if (existOpponentPieceAndEmptyCeilAfter)
+                        kingCanRemovePiece = true;
+                    else
+                        noObstaclesOnDiagonal = false;
+//                else if (existOpponentPieceAndEmptyCeilAfter)
+//                    kingCanRemovePiece = true;
             }
         }
         return kingCanRemovePiece;
