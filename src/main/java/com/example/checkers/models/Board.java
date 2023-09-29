@@ -516,6 +516,15 @@ public class Board {
             field[next.y][next.x]=field[prev.y][prev.x];
             field[next.y][next.x].setPos(next);
             field[prev.y][prev.x]=null;
+
+            System.out.println("checker moved x1: " + prev.x+ " y1: " + prev.y + " to x2: " + next.x+ " y2: " + next.y); // log
+//            boolean pieceChangeToKing = checkerChangedToKing(field[next.y][next.x]);
+            boolean pieceChangeToKing = (pieceRemovedPiece && !pieceCanRemovePiece(field[next.y][next.x]) && reachedLastRowOfOppositeSide(field[next.y][next.x])) || (!pieceRemovedPiece && reachedLastRowOfOppositeSide(field[next.y][next.x]));
+            if (pieceChangeToKing) { // взятие без выхода в дамки
+                field[next.y][next.x].setType(PieceType.KING);
+                System.out.println("checker x: " + next.x + " y: " + next.y + " changed to king"); // log
+            }
+
             if (pieceRemovedPiece) {
                 if (pieceCanRemovePiece(field[next.y][next.x]))
                     pieceShouldRemovedPiece = true;
@@ -523,16 +532,12 @@ public class Board {
                     pieceShouldRemovedPiece = false;
                 pieceRemovedPiece = false;
             }
-            System.out.println("checker moved x1: " + prev.x+ " y1: " + prev.y + " to x2: " + next.x+ " y2: " + next.y); // log
-            if (!pieceCanRemovePiece(field[next.y][next.x]) && checkerChangedToKing(field[next.y][next.x])) { // взятие без выхода в дамки
-                field[next.y][next.x].setType(PieceType.KING);
-                System.out.println("checker x: " + next.x + " y: " + next.y + " changed to king"); // log
-            }
+
 //            printBoard();
         }
         return PieceMoved;
     }
-    public boolean checkerChangedToKing(Piece piece) {
+    public boolean reachedLastRowOfOppositeSide(Piece piece) {
         boolean isKing = false;
         if (piece.getColor() == PieceColor.BLACK) {
             if (piece.getPos().y == HEIGHT-1)
