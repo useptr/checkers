@@ -6,7 +6,6 @@ import com.example.checkers.models.Board;
 import com.example.checkers.models.Piece;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -19,14 +18,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 public class MainScreen {
     private double width=0;
@@ -83,7 +78,7 @@ public class MainScreen {
         return stage;
     }
     public void drawPieces(Board board) {
-        Piece[][] field = board.getField();
+        Piece[][] field = board.field();
         for (Node node : fieldGridPane.getChildren()) {
              int x = fieldGridPane.getColumnIndex(node);
              int y = fieldGridPane.getRowIndex(node); 

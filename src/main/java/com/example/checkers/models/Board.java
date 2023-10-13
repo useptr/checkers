@@ -7,8 +7,8 @@ import com.example.checkers.enums.PieceType;
 import java.util.ArrayList;
 
 public class Board {
-    private static final int WIDTH=8;
-    private static final int HEIGHT=8;
+    public static final int WIDTH=8;
+    public static final int HEIGHT=8;
     public int getCountWhitePieces() {
         return countWhitePieces;
     }
@@ -17,6 +17,11 @@ public class Board {
     }
     private int countWhitePieces=0;
     private int countBlackPieces=0;
+
+    public void setPieceRemovedPiece(boolean pieceRemovedPiece) {
+        this.pieceRemovedPiece = pieceRemovedPiece;
+    }
+
     private boolean pieceRemovedPiece = false;
     private boolean pieceShouldRemovedPiece = false;
     public boolean isPieceShouldRemovedPiece() {
@@ -68,7 +73,7 @@ public class Board {
         for (int y =0; y<HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 if (field[y][x]!=null) {
-                    if (field[y][x].getColor() == PieceColor.BLACK)
+                    if (field[y][x].color() == PieceColor.BLACK)
                         board+="B";
                     else
                         board+="W";
@@ -128,7 +133,7 @@ public class Board {
         else
             countWhitePieces--;
     }
-    public Piece[][] getField() {
+    public Piece[][] field() {
         return field;
     }
 
@@ -138,7 +143,7 @@ public class Board {
     public int getHeight() {
         return HEIGHT;
     }
-    private int nextCoordinate(int current, int end) {
+    public int nextCoordinate(int current, int end) {
         if (current == end)
             return end;
         if (current < end)
@@ -148,8 +153,8 @@ public class Board {
 
     public boolean blackCheckerCanMoveTo(Piece prev, Position posNext) {
         boolean checkerCanMove = false;
-        int pX = prev.getPos().x;
-        int pY = prev.getPos().y;
+        int pX = prev.position().x;
+        int pY = prev.position().y;
         int nX = posNext.x;
         int nY = posNext.y;
         Piece next = field[nY][nX];
@@ -164,8 +169,8 @@ public class Board {
     }
     public boolean whiteCheckerCanMoveTo(Piece prev, Position posNext) {
         boolean checkerCanMove = false;
-        int pX = prev.getPos().x;
-        int pY = prev.getPos().y;
+        int pX = prev.position().x;
+        int pY = prev.position().y;
         int nX = posNext.x;
         int nY = posNext.y;
         Piece next = field[nY][nX];
@@ -180,14 +185,14 @@ public class Board {
     }
     public boolean kingCanRemovePieceOnDiagonal(Piece piece, int endX, int endY) {
         boolean kingCanRemovePiece = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
+        int x = piece.position().x;
+        int y = piece.position().y;
         boolean noObstaclesOnDiagonal = true;
         for (int i=nextCoordinate(x, endX), j =nextCoordinate(y, endY); i != endX && j!=endY && noObstaclesOnDiagonal && !kingCanRemovePiece;i=nextCoordinate(i, endX), j =nextCoordinate(j, endY)) {
             if (field[j][i] != null) {
-                if (field[j][i].getColor() == piece.getColor())
+                if (field[j][i].color() == piece.color())
                     noObstaclesOnDiagonal = false;
-                boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].getColor() != piece.getColor() && field[nextCoordinate(j, endY)][nextCoordinate(i, endX)] == null;
+                boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].color() != piece.color() && field[nextCoordinate(j, endY)][nextCoordinate(i, endX)] == null;
                     if (existOpponentPieceAndEmptyCeilAfter)
                         kingCanRemovePiece = true;
                     else
@@ -200,8 +205,8 @@ public class Board {
     }
     public boolean kingCanRemovePieceWithoutDiagonal(Piece piece, Diagonal ignored) {
         boolean kingCanRemovePiece = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
+        int x = piece.position().x;
+        int y = piece.position().y;
         if (ignored != Diagonal.UP_RIGHT && kingCanRemovePieceOnDiagonal(piece, WIDTH-1, 0)) // check up right diagonal
             kingCanRemovePiece = true;
         else if (ignored != Diagonal.DOWN_RIGHT && kingCanRemovePieceOnDiagonal(piece, WIDTH-1, HEIGHT-1)) // check down right diagonal
@@ -214,8 +219,8 @@ public class Board {
     }
     public boolean kingCanRemovePiece(Piece piece) {
         boolean kingCanRemovePiece = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
+        int x = piece.position().x;
+        int y = piece.position().y;
         if (kingCanRemovePieceOnDiagonal(piece, WIDTH-1, 0)) // check up right diagonal
             kingCanRemovePiece = true;
         else if (kingCanRemovePieceOnDiagonal(piece, WIDTH-1, HEIGHT-1)) // check down right diagonal
@@ -228,8 +233,8 @@ public class Board {
     }
     public boolean kingCanMoveTo(Piece prev, Position posNext) {
         boolean kingCanMove = false;
-        int pX = prev.getPos().x;
-        int pY = prev.getPos().y;
+        int pX = prev.position().x;
+        int pY = prev.position().y;
         int nX = posNext.x;
         int nY = posNext.y;
         Piece next = field[nY][nX];
@@ -257,8 +262,8 @@ public class Board {
     }
     public boolean kingRemovePieceTo(Piece prev, Position posNext) {
         boolean kingRemovedPiece = false;
-        int pX = prev.getPos().x;
-        int pY = prev.getPos().y;
+        int pX = prev.position().x;
+        int pY = prev.position().y;
         int nX = posNext.x;
         int nY = posNext.y;
         ArrayList<Position> removed = new ArrayList<>();
@@ -267,9 +272,9 @@ public class Board {
             boolean noObstaclesOnDiagonal = true;
             for (int i =nextCoordinate(pX, nX), j =nextCoordinate(pY,nY); i!=nX && noObstaclesOnDiagonal;i=nextCoordinate(i, nX), j=nextCoordinate(j, nY)) { // check correct remove route on diagonal
                 if (field[j][i] != null) {
-                    if (field[j][i].getColor() == prev.getColor())
+                    if (field[j][i].color() == prev.color())
                         noObstaclesOnDiagonal = false;
-                    boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].getColor() != prev.getColor() && field[nextCoordinate(j, nY)][nextCoordinate(i, nX)] == null;
+                    boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].color() != prev.color() && field[nextCoordinate(j, nY)][nextCoordinate(i, nX)] == null;
                     if (existOpponentPieceAndEmptyCeilAfter)
                             removed.add(new Position(i, j));
                     else
@@ -279,13 +284,13 @@ public class Board {
             if (noObstaclesOnDiagonal && removed.size()>0) {
                 ArrayList<Position> canRemoveAfter = new ArrayList<>();
                 Position lastRemovedPieceOnDiagonal = removed.get(removed.size()-1);
-                Diagonal currentDiagonal = getDiagonal(prev.getPos(), posNext);
+                Diagonal currentDiagonal = getDiagonal(prev.position(), posNext);
                 Diagonal inverseDiagonal = getInverseDiagonal(currentDiagonal);
                 Position end = getEndDiagonalPosition(currentDiagonal);
                 int i = nextCoordinate(lastRemovedPieceOnDiagonal.x,end.x);
                 int j = nextCoordinate(lastRemovedPieceOnDiagonal.y,end.y);
                 for (; i != end.x && j != end.y && field[j][i] == null; i=nextCoordinate(i, end.x), j=nextCoordinate(j, end.y)) {
-                    if (kingCanRemovePieceWithoutDiagonal(new Piece(i,j,prev.getColor(),PieceType.KING), inverseDiagonal))
+                    if (kingCanRemovePieceWithoutDiagonal(new Piece(i,j,prev.color(),PieceType.KING), inverseDiagonal))
                         canRemoveAfter.add(new Position(i,j));
                 }
                 if (canRemoveAfter.size() > 0) {
@@ -302,7 +307,7 @@ public class Board {
         }
         if (kingRemovedPiece) {
             for (Position pos : removed) {
-                reducePieceCount(field[pos.y][pos.x].getColor());
+                reducePieceCount(field[pos.y][pos.x].color());
                 field[pos.y][pos.x] = null;
             }
             pieceRemovedPiece = true;
@@ -348,56 +353,56 @@ public class Board {
     }
     public boolean checkerCanRemovePiece(Piece piece) {
         boolean checkerCanRemovePiece = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
+        int x = piece.position().x;
+        int y = piece.position().y;
         Piece next = null;
         Position pos = new Position(x+2, y+2);
-        if (isCorrectPosition(pos)) {
+        if (isValidPosition(pos)) {
             next = field[y+2][x+2];
-            if (next == null && field[y + 1][x + 1] != null && field[y + 1][x + 1].getColor() != piece.getColor())
+            if (next == null && field[y + 1][x + 1] != null && field[y + 1][x + 1].color() != piece.color())
                 checkerCanRemovePiece = true;
         }
         pos.x=x-2;
-        if (isCorrectPosition(pos)) {
+        if (isValidPosition(pos)) {
             next = field[y + 2][x - 2];
-            if (next == null && field[y + 1][x - 1] != null && field[y + 1][x - 1].getColor() != piece.getColor())
+            if (next == null && field[y + 1][x - 1] != null && field[y + 1][x - 1].color() != piece.color())
                 checkerCanRemovePiece = true;
         }
         pos.y=y-2;
-        if (isCorrectPosition(pos)) {
+        if (isValidPosition(pos)) {
             next = field[y - 2][x - 2];
-            if (next == null && field[y - 1][x - 1] != null && field[y - 1][x - 1].getColor() != piece.getColor())
+            if (next == null && field[y - 1][x - 1] != null && field[y - 1][x - 1].color() != piece.color())
                 checkerCanRemovePiece = true;
         }
         pos.x=x+2;
-        if (isCorrectPosition(pos)) {
+        if (isValidPosition(pos)) {
             next = field[y - 2][x + 2];
-            if (next == null && field[y - 1][x + 1] != null && field[y - 1][x + 1].getColor() != piece.getColor())
+            if (next == null && field[y - 1][x + 1] != null && field[y - 1][x + 1].color() != piece.color())
                 checkerCanRemovePiece = true;
         }
         return checkerCanRemovePiece;
     }
     public boolean blackCheckerCanMove(Piece piece) {
         boolean checkerCanMove = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
-        boolean stepOnEmptyCell = (isCorrectPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isCorrectPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null);
+        int x = piece.position().x;
+        int y = piece.position().y;
+        boolean stepOnEmptyCell = (isValidPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isValidPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null);
         if (checkerCanRemovePiece(piece) || stepOnEmptyCell)
             checkerCanMove = true;
         return checkerCanMove;
     }
     public boolean whiteCheckerCanMove(Piece piece) {
         boolean checkerCanMove = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
-        boolean stepOnEmptyCell = (isCorrectPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null) || (isCorrectPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null);
+        int x = piece.position().x;
+        int y = piece.position().y;
+        boolean stepOnEmptyCell = (isValidPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null) || (isValidPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null);
         if (checkerCanRemovePiece(piece) || stepOnEmptyCell)
             checkerCanMove = true;
         return checkerCanMove;
     }
     public boolean checkerCanMove(Piece piece) {
         boolean checkerCanMove = false;
-        if (piece.getColor() == PieceColor.BLACK) {
+        if (piece.color() == PieceColor.BLACK) {
             checkerCanMove = blackCheckerCanMove(piece);
         } else {
             checkerCanMove = whiteCheckerCanMove(piece);
@@ -406,9 +411,9 @@ public class Board {
     }
     public boolean kingCanMove(Piece piece) {
         boolean kingCanMove = false;
-        int x = piece.getPos().x;
-        int y = piece.getPos().y;
-        boolean stepOnEmptyCell = (isCorrectPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null) || (isCorrectPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isCorrectPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null) || (isCorrectPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null);
+        int x = piece.position().x;
+        int y = piece.position().y;
+        boolean stepOnEmptyCell = (isValidPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null) || (isValidPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isValidPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null) || (isValidPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null);
         if (!kingCanRemovePiece(piece) || stepOnEmptyCell)
             kingCanMove = true;
         return kingCanMove;
@@ -426,7 +431,7 @@ public class Board {
     public boolean canMovePiece(PieceColor color) {
         for (int y =0; y<HEIGHT; y++) {
             for (int x = (y+1)%2; x < WIDTH; x+=2) {
-                if (field[y][x] != null && color == field[y][x].getColor() && PieceCanMove(field[y][x])) {
+                if (field[y][x] != null && color == field[y][x].color() && PieceCanMove(field[y][x])) {
                     return true;
                 }
             }
@@ -436,7 +441,7 @@ public class Board {
     public boolean canRemovePiece(PieceColor color) {
         for (int y =0; y<HEIGHT; y++) {
             for (int x = (y+1)%2; x < WIDTH; x+=2) {
-                if (field[y][x] != null && color == field[y][x].getColor() && pieceCanRemovePiece(field[y][x]))
+                if (field[y][x] != null && color == field[y][x].color() && pieceCanRemovePiece(field[y][x]))
                     return  true;
             }
         }
@@ -452,36 +457,36 @@ public class Board {
     }
     public boolean checkerRemovePieceTo(Piece prev, Position posNext) {
         boolean checkerRemovedPiece = false;
-        int pX = prev.getPos().x;
-        int pY = prev.getPos().y;
+        int pX = prev.position().x;
+        int pY = prev.position().y;
         int nX = posNext.x;
         int nY = posNext.y;
         Piece next = field[nY][nX];
         if (next == null) {
             if (pX + 2 == nX) {
                 if (pY + 2 == nY) {
-                    if ( field[pY + 1][pX + 1] != null && field[pY + 1][pX + 1].getColor() != prev.getColor()) {
-                        reducePieceCount(field[pY + 1][pX + 1].getColor());
+                    if ( field[pY + 1][pX + 1] != null && field[pY + 1][pX + 1].color() != prev.color()) {
+                        reducePieceCount(field[pY + 1][pX + 1].color());
                         field[pY + 1][pX + 1] = null;
                         checkerRemovedPiece = true;
                     }
                 } else if (pY - 2 == nY) {
-                    if (field[pY - 1][pX + 1] != null && (field[pY - 1][pX + 1].getColor() != prev.getColor())) {
-                        reducePieceCount(field[pY - 1][pX + 1].getColor());
+                    if (field[pY - 1][pX + 1] != null && (field[pY - 1][pX + 1].color() != prev.color())) {
+                        reducePieceCount(field[pY - 1][pX + 1].color());
                         field[pY - 1][pX + 1] = null;
                         checkerRemovedPiece = true;
                     }
                 }
             } else if (pX - 2 == nX) {
                 if (pY + 2 == nY) {
-                    if (field[pY + 1][pX - 1] != null && field[pY + 1][pX - 1].getColor() != prev.getColor()) {
-                        reducePieceCount(field[pY + 1][pX - 1].getColor());
+                    if (field[pY + 1][pX - 1] != null && field[pY + 1][pX - 1].color() != prev.color()) {
+                        reducePieceCount(field[pY + 1][pX - 1].color());
                         field[pY + 1][pX - 1] = null;
                         checkerRemovedPiece = true;
                     }
                 } else if (pY - 2 == nY) {
-                    if (field[pY - 1][pX - 1] != null && field[pY - 1][pX - 1].getColor() != prev.getColor()) {
-                        reducePieceCount(field[pY - 1][pX - 1].getColor());
+                    if (field[pY - 1][pX - 1] != null && field[pY - 1][pX - 1].color() != prev.color()) {
+                        reducePieceCount(field[pY - 1][pX - 1].color());
                         field[pY - 1][pX - 1] = null;
                         checkerRemovedPiece = true;
                     }
@@ -496,7 +501,7 @@ public class Board {
     }
     public boolean checkerMoveTo(Piece prev, Position posNext) {
         boolean checkerCanMove = false;
-        if (prev.getColor() == PieceColor.BLACK) {
+        if (prev.color() == PieceColor.BLACK) {
             checkerCanMove = blackCheckerCanMoveTo(prev, posNext);
         } else {
             checkerCanMove = whiteCheckerCanMoveTo(prev, posNext);
@@ -539,16 +544,16 @@ public class Board {
     }
     public boolean reachedLastRowOfOppositeSide(Piece piece) {
         boolean isKing = false;
-        if (piece.getColor() == PieceColor.BLACK) {
-            if (piece.getPos().y == HEIGHT-1)
+        if (piece.color() == PieceColor.BLACK) {
+            if (piece.position().y == HEIGHT-1)
                 isKing = true;
         } else {
-            if (piece.getPos().y == 0)
+            if (piece.position().y == 0)
                 isKing = true;
         }
         return isKing;
     }
-    public boolean isCorrectPosition(Position pos) {
+    public boolean isValidPosition(Position pos) {
         return pos.x < WIDTH && pos.x >= 0 && pos.y < HEIGHT && pos.y >= 0;
     }
     public boolean positionsAreEqual(Position first, Position second) {
