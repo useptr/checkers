@@ -9,25 +9,23 @@ import java.util.ArrayList;
 public class Board {
     public static final int WIDTH=8;
     public static final int HEIGHT=8;
+    private int countWhitePieces=0;
+    private int countBlackPieces=0;
+    private Piece[][] field = new Piece[HEIGHT][WIDTH];
+    private boolean pieceRemovedPiece = false;
+    private boolean pieceShouldRemovedPiece = false;
     public int getCountWhitePieces() {
         return countWhitePieces;
     }
     public int getCountBlackPieces() {
         return countBlackPieces;
     }
-    private int countWhitePieces=0;
-    private int countBlackPieces=0;
-
     public void setPieceRemovedPiece(boolean pieceRemovedPiece) {
         this.pieceRemovedPiece = pieceRemovedPiece;
     }
-
-    private boolean pieceRemovedPiece = false;
-    private boolean pieceShouldRemovedPiece = false;
     public boolean isPieceShouldRemovedPiece() {
         return pieceShouldRemovedPiece;
     }
-    private Piece[][] field = new Piece[HEIGHT][WIDTH];
     public boolean setBoard(String board) {
         boolean isValidBoard = true;
         countWhitePieces = 0;
@@ -77,7 +75,7 @@ public class Board {
                         board+="B";
                     else
                         board+="W";
-                    if (field[y][x].getType() == PieceType.CHECKER)
+                    if (field[y][x].type() == PieceType.CHECKER)
                         board+="C";
                     else
                         board+="K";
@@ -114,7 +112,6 @@ public class Board {
                     Piece piece = new Piece(x, y, color, PieceType.CHECKER);
                     field[y][x]=piece;
                 }
-
             }
         }
     }
@@ -136,7 +133,6 @@ public class Board {
     public Piece[][] field() {
         return field;
     }
-
     public int getWidth() {
         return WIDTH;
     }
@@ -149,170 +145,6 @@ public class Board {
         if (current < end)
             return current+1;
         return current-1;
-    }
-
-    public boolean blackCheckerCanMoveTo(Piece prev, Position posNext) {
-        boolean checkerCanMove = false;
-        int pX = prev.position().x;
-        int pY = prev.position().y;
-        int nX = posNext.x;
-        int nY = posNext.y;
-        Piece next = field[nY][nX];
-        if (checkerRemovePieceTo(prev, posNext)) {
-            checkerCanMove = true;
-        }
-        else if (!checkerCanRemovePiece(prev)) {
-            boolean stepOnEmptyCell = next == null && pY+1 == nY && (pX-1 == nX || pX+1 == nX) && !pieceShouldRemovedPiece;
-            checkerCanMove = stepOnEmptyCell;
-        }
-        return checkerCanMove;
-    }
-    public boolean whiteCheckerCanMoveTo(Piece prev, Position posNext) {
-        boolean checkerCanMove = false;
-        int pX = prev.position().x;
-        int pY = prev.position().y;
-        int nX = posNext.x;
-        int nY = posNext.y;
-        Piece next = field[nY][nX];
-        if (checkerRemovePieceTo(prev, posNext)) {
-            checkerCanMove = true;
-        }
-        else if (!checkerCanRemovePiece(prev)) {
-            boolean stepOnEmptyCell = next == null && pY-1 == nY && (pX-1 == nX || pX+1 == nX) && !pieceShouldRemovedPiece;
-            checkerCanMove = stepOnEmptyCell;
-        }
-        return checkerCanMove;
-    }
-    public boolean kingCanRemovePieceOnDiagonal(Piece piece, int endX, int endY) {
-        boolean kingCanRemovePiece = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        boolean noObstaclesOnDiagonal = true;
-        for (int i=nextCoordinate(x, endX), j =nextCoordinate(y, endY); i != endX && j!=endY && noObstaclesOnDiagonal && !kingCanRemovePiece;i=nextCoordinate(i, endX), j =nextCoordinate(j, endY)) {
-            if (field[j][i] != null) {
-                if (field[j][i].color() == piece.color())
-                    noObstaclesOnDiagonal = false;
-                boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].color() != piece.color() && field[nextCoordinate(j, endY)][nextCoordinate(i, endX)] == null;
-                    if (existOpponentPieceAndEmptyCeilAfter)
-                        kingCanRemovePiece = true;
-                    else
-                        noObstaclesOnDiagonal = false;
-//                else if (existOpponentPieceAndEmptyCeilAfter)
-//                    kingCanRemovePiece = true;
-            }
-        }
-        return kingCanRemovePiece;
-    }
-    public boolean kingCanRemovePieceWithoutDiagonal(Piece piece, Diagonal ignored) {
-        boolean kingCanRemovePiece = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        if (ignored != Diagonal.UP_RIGHT && kingCanRemovePieceOnDiagonal(piece, WIDTH-1, 0)) // check up right diagonal
-            kingCanRemovePiece = true;
-        else if (ignored != Diagonal.DOWN_RIGHT && kingCanRemovePieceOnDiagonal(piece, WIDTH-1, HEIGHT-1)) // check down right diagonal
-            kingCanRemovePiece = true;
-        else if (ignored != Diagonal.UP_LEFT && kingCanRemovePieceOnDiagonal(piece, 0, 0)) // check up left diagonal
-            kingCanRemovePiece = true;
-        else if (ignored != Diagonal.DOWN_LEFT && kingCanRemovePieceOnDiagonal(piece, 0, HEIGHT-1)) // check down left diagonal
-            kingCanRemovePiece = true;
-        return kingCanRemovePiece;
-    }
-    public boolean kingCanRemovePiece(Piece piece) {
-        boolean kingCanRemovePiece = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        if (kingCanRemovePieceOnDiagonal(piece, WIDTH-1, 0)) // check up right diagonal
-            kingCanRemovePiece = true;
-        else if (kingCanRemovePieceOnDiagonal(piece, WIDTH-1, HEIGHT-1)) // check down right diagonal
-            kingCanRemovePiece = true;
-        else if (kingCanRemovePieceOnDiagonal(piece, 0, 0)) // check up left diagonal
-            kingCanRemovePiece = true;
-        else if (kingCanRemovePieceOnDiagonal(piece, 0, HEIGHT-1)) // check down left diagonal
-            kingCanRemovePiece = true;
-        return kingCanRemovePiece;
-    }
-    public boolean kingCanMoveTo(Piece prev, Position posNext) {
-        boolean kingCanMove = false;
-        int pX = prev.position().x;
-        int pY = prev.position().y;
-        int nX = posNext.x;
-        int nY = posNext.y;
-        Piece next = field[nY][nX];
-        if (kingRemovePieceTo(prev, posNext))
-            kingCanMove = true;
-        else if (!kingCanRemovePiece(prev) && !pieceShouldRemovedPiece) {
-            if (Math.abs(pX - nX) == Math.abs(pY - nY) && next == null) {
-                boolean stepOnEmptyCell = true;
-                for (int i = nextCoordinate(pX, nX), j = nextCoordinate(pY, nY); i != nX; i = nextCoordinate(i, nX), j = nextCoordinate(j, nY)) {
-                    if (field[j][i] != null) {
-                        stepOnEmptyCell = false;
-                        break;
-                    }
-                }
-                kingCanMove = stepOnEmptyCell;
-            }
-        }
-        return kingCanMove;
-    }
-    public boolean kingMoveTo(Piece prev, Position posNext) {
-        boolean kingCanMove = false;
-        if (kingCanMoveTo(prev, posNext))
-            kingCanMove = true;
-        return kingCanMove;
-    }
-    public boolean kingRemovePieceTo(Piece prev, Position posNext) {
-        boolean kingRemovedPiece = false;
-        int pX = prev.position().x;
-        int pY = prev.position().y;
-        int nX = posNext.x;
-        int nY = posNext.y;
-        ArrayList<Position> removed = new ArrayList<>();
-        Piece next = field[nY][nX];
-        if (Math.abs(pX-nX) == Math.abs(pY-nY) && next == null) {
-            boolean noObstaclesOnDiagonal = true;
-            for (int i =nextCoordinate(pX, nX), j =nextCoordinate(pY,nY); i!=nX && noObstaclesOnDiagonal;i=nextCoordinate(i, nX), j=nextCoordinate(j, nY)) { // check correct remove route on diagonal
-                if (field[j][i] != null) {
-                    if (field[j][i].color() == prev.color())
-                        noObstaclesOnDiagonal = false;
-                    boolean existOpponentPieceAndEmptyCeilAfter = field[j][i].color() != prev.color() && field[nextCoordinate(j, nY)][nextCoordinate(i, nX)] == null;
-                    if (existOpponentPieceAndEmptyCeilAfter)
-                            removed.add(new Position(i, j));
-                    else
-                        noObstaclesOnDiagonal = false;
-                }
-            }
-            if (noObstaclesOnDiagonal && removed.size()>0) {
-                ArrayList<Position> canRemoveAfter = new ArrayList<>();
-                Position lastRemovedPieceOnDiagonal = removed.get(removed.size()-1);
-                Diagonal currentDiagonal = getDiagonal(prev.position(), posNext);
-                Diagonal inverseDiagonal = getInverseDiagonal(currentDiagonal);
-                Position end = getEndDiagonalPosition(currentDiagonal);
-                int i = nextCoordinate(lastRemovedPieceOnDiagonal.x,end.x);
-                int j = nextCoordinate(lastRemovedPieceOnDiagonal.y,end.y);
-                for (; i != end.x && j != end.y && field[j][i] == null; i=nextCoordinate(i, end.x), j=nextCoordinate(j, end.y)) {
-                    if (kingCanRemovePieceWithoutDiagonal(new Piece(i,j,prev.color(),PieceType.KING), inverseDiagonal))
-                        canRemoveAfter.add(new Position(i,j));
-                }
-                if (canRemoveAfter.size() > 0) {
-                    for (Position pos : canRemoveAfter) {
-                        if (positionsAreEqual(pos, posNext)) {
-                            kingRemovedPiece = true;
-                            break;
-                        }
-                    }
-                }
-                else
-                    kingRemovedPiece = true;
-            }
-        }
-        if (kingRemovedPiece) {
-            for (Position pos : removed) {
-                reducePieceCount(field[pos.y][pos.x].color());
-                field[pos.y][pos.x] = null;
-            }
-            pieceRemovedPiece = true;
-        }
-        return kingRemovedPiece;
     }
     public Position getEndDiagonalPosition(Diagonal diagonal) {
         if (diagonal == Diagonal.UP_RIGHT)
@@ -351,194 +183,47 @@ public class Board {
                 return Diagonal.UP_LEFT;
         }
     }
-    public boolean checkerCanRemovePiece(Piece piece) {
-        boolean checkerCanRemovePiece = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        Piece next = null;
-        Position pos = new Position(x+2, y+2);
-        if (isValidPosition(pos)) {
-            next = field[y+2][x+2];
-            if (next == null && field[y + 1][x + 1] != null && field[y + 1][x + 1].color() != piece.color())
-                checkerCanRemovePiece = true;
+    public boolean canRemovePiece(PieceColor color) {
+        for (int y =0; y<HEIGHT; y++) {
+            for (int x = (y+1)%2; x < WIDTH; x+=2) {
+                if (field[y][x] != null && color == field[y][x].color() && field[y][x].canRemove(this))
+                    return  true;
+            }
         }
-        pos.x=x-2;
-        if (isValidPosition(pos)) {
-            next = field[y + 2][x - 2];
-            if (next == null && field[y + 1][x - 1] != null && field[y + 1][x - 1].color() != piece.color())
-                checkerCanRemovePiece = true;
-        }
-        pos.y=y-2;
-        if (isValidPosition(pos)) {
-            next = field[y - 2][x - 2];
-            if (next == null && field[y - 1][x - 1] != null && field[y - 1][x - 1].color() != piece.color())
-                checkerCanRemovePiece = true;
-        }
-        pos.x=x+2;
-        if (isValidPosition(pos)) {
-            next = field[y - 2][x + 2];
-            if (next == null && field[y - 1][x + 1] != null && field[y - 1][x + 1].color() != piece.color())
-                checkerCanRemovePiece = true;
-        }
-        return checkerCanRemovePiece;
-    }
-    public boolean blackCheckerCanMove(Piece piece) {
-        boolean checkerCanMove = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        boolean stepOnEmptyCell = (isValidPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isValidPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null);
-        if (checkerCanRemovePiece(piece) || stepOnEmptyCell)
-            checkerCanMove = true;
-        return checkerCanMove;
-    }
-    public boolean whiteCheckerCanMove(Piece piece) {
-        boolean checkerCanMove = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        boolean stepOnEmptyCell = (isValidPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null) || (isValidPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null);
-        if (checkerCanRemovePiece(piece) || stepOnEmptyCell)
-            checkerCanMove = true;
-        return checkerCanMove;
-    }
-    public boolean checkerCanMove(Piece piece) {
-        boolean checkerCanMove = false;
-        if (piece.color() == PieceColor.BLACK) {
-            checkerCanMove = blackCheckerCanMove(piece);
-        } else {
-            checkerCanMove = whiteCheckerCanMove(piece);
-        }
-        return checkerCanMove;
-    }
-    public boolean kingCanMove(Piece piece) {
-        boolean kingCanMove = false;
-        int x = piece.position().x;
-        int y = piece.position().y;
-        boolean stepOnEmptyCell = (isValidPosition(new Position(x+1,y+1)) && field[y+1][x+1] == null) || (isValidPosition(new Position(x-1,y+1)) && field[y+1][x-1] == null) || (isValidPosition(new Position(x+1,y-1)) && field[y-1][x+1] == null) || (isValidPosition(new Position(x-1,y-1)) && field[y-1][x-1] == null);
-        if (!kingCanRemovePiece(piece) || stepOnEmptyCell)
-            kingCanMove = true;
-        return kingCanMove;
-    }
-    public boolean PieceCanMove(Piece piece) {
-        boolean pieceCanMove = false;
-        if (piece.getType() == PieceType.CHECKER) {
-            pieceCanMove = checkerCanMove(piece);
-        }
-        else if (piece.getType() == PieceType.KING) {
-            pieceCanMove = kingCanMove(piece);
-        }
-        return pieceCanMove;
+        return false;
     }
     public boolean canMovePiece(PieceColor color) {
         for (int y =0; y<HEIGHT; y++) {
             for (int x = (y+1)%2; x < WIDTH; x+=2) {
-                if (field[y][x] != null && color == field[y][x].color() && PieceCanMove(field[y][x])) {
+                if (field[y][x] != null && color == field[y][x].color() && field[y][x].canMove(this)) {
                     return true;
                 }
             }
         }
         return false;
     }
-    public boolean canRemovePiece(PieceColor color) {
-        for (int y =0; y<HEIGHT; y++) {
-            for (int x = (y+1)%2; x < WIDTH; x+=2) {
-                if (field[y][x] != null && color == field[y][x].color() && pieceCanRemovePiece(field[y][x]))
-                    return  true;
-            }
-        }
-        return false;
-    }
-    public boolean pieceCanRemovePiece(Piece piece) {
-        boolean pieceCanRemovePiece = false;
-        if (piece.getType() == PieceType.CHECKER)
-            pieceCanRemovePiece = checkerCanRemovePiece(piece);
-        else if (piece.getType() == PieceType.KING)
-             pieceCanRemovePiece = kingCanRemovePiece(piece);
-        return pieceCanRemovePiece;
-    }
-    public boolean checkerRemovePieceTo(Piece prev, Position posNext) {
-        boolean checkerRemovedPiece = false;
-        int pX = prev.position().x;
-        int pY = prev.position().y;
-        int nX = posNext.x;
-        int nY = posNext.y;
-        Piece next = field[nY][nX];
-        if (next == null) {
-            if (pX + 2 == nX) {
-                if (pY + 2 == nY) {
-                    if ( field[pY + 1][pX + 1] != null && field[pY + 1][pX + 1].color() != prev.color()) {
-                        reducePieceCount(field[pY + 1][pX + 1].color());
-                        field[pY + 1][pX + 1] = null;
-                        checkerRemovedPiece = true;
-                    }
-                } else if (pY - 2 == nY) {
-                    if (field[pY - 1][pX + 1] != null && (field[pY - 1][pX + 1].color() != prev.color())) {
-                        reducePieceCount(field[pY - 1][pX + 1].color());
-                        field[pY - 1][pX + 1] = null;
-                        checkerRemovedPiece = true;
-                    }
-                }
-            } else if (pX - 2 == nX) {
-                if (pY + 2 == nY) {
-                    if (field[pY + 1][pX - 1] != null && field[pY + 1][pX - 1].color() != prev.color()) {
-                        reducePieceCount(field[pY + 1][pX - 1].color());
-                        field[pY + 1][pX - 1] = null;
-                        checkerRemovedPiece = true;
-                    }
-                } else if (pY - 2 == nY) {
-                    if (field[pY - 1][pX - 1] != null && field[pY - 1][pX - 1].color() != prev.color()) {
-                        reducePieceCount(field[pY - 1][pX - 1].color());
-                        field[pY - 1][pX - 1] = null;
-                        checkerRemovedPiece = true;
-                    }
-                }
-            }
-        }
-        if (checkerRemovedPiece)
-            pieceRemovedPiece = true;
-
-
-        return checkerRemovedPiece;
-    }
-    public boolean checkerMoveTo(Piece prev, Position posNext) {
-        boolean checkerCanMove = false;
-        if (prev.color() == PieceColor.BLACK) {
-            checkerCanMove = blackCheckerCanMoveTo(prev, posNext);
-        } else {
-            checkerCanMove = whiteCheckerCanMoveTo(prev, posNext);
-        }
-        return checkerCanMove;
-    }
     public boolean movePieceTo(Position prev, Position next) {
-        Piece prevPiece = field[prev.y][prev.x];
-        boolean PieceMoved = false;
-        if (prevPiece.getType() == PieceType.CHECKER) {
-            PieceMoved = checkerMoveTo(prevPiece, next);
-        }
-        else if (prevPiece.getType() == PieceType.KING) {
-            PieceMoved = kingMoveTo(prevPiece, next);
-        }
+        Piece curPiece = field[prev.y][prev.x];
+        boolean PieceMoved = curPiece.moveTo(this, next);
         if (PieceMoved) {
             field[next.y][next.x]=field[prev.y][prev.x];
-            field[next.y][next.x].setPos(next);
+            field[next.y][next.x].setPosition(next);
             field[prev.y][prev.x]=null;
-
             System.out.println("checker moved x1: " + prev.x+ " y1: " + prev.y + " to x2: " + next.x+ " y2: " + next.y); // log
 //            boolean pieceChangeToKing = checkerChangedToKing(field[next.y][next.x]);
-            boolean pieceChangeToKing = (pieceRemovedPiece && !pieceCanRemovePiece(field[next.y][next.x]) && reachedLastRowOfOppositeSide(field[next.y][next.x])) || (!pieceRemovedPiece && reachedLastRowOfOppositeSide(field[next.y][next.x]));
+            boolean pieceChangeToKing = (pieceRemovedPiece && !field[next.y][next.x].canRemove(this) && reachedLastRowOfOppositeSide(field[next.y][next.x])) || (!pieceRemovedPiece && reachedLastRowOfOppositeSide(field[next.y][next.x]));
             if (pieceChangeToKing) { // взятие без выхода в дамки
                 field[next.y][next.x].setType(PieceType.KING);
+                field[next.y][next.x].updateMoveBehavior();
                 System.out.println("checker x: " + next.x + " y: " + next.y + " changed to king"); // log
             }
-
             if (pieceRemovedPiece) {
-                if (pieceCanRemovePiece(field[next.y][next.x]))
+                if (field[next.y][next.x].canRemove(this))
                     pieceShouldRemovedPiece = true;
                 else
                     pieceShouldRemovedPiece = false;
                 pieceRemovedPiece = false;
             }
-
-//            printBoard();
         }
         return PieceMoved;
     }

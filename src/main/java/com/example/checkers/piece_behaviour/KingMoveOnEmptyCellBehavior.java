@@ -22,10 +22,6 @@ public class KingMoveOnEmptyCellBehavior implements MoveOnEmptyCellBehavior{
         int pY = piece.position().y;
         int nX = next.x;
         int nY = next.y;
-//        Piece next = field[nY][nX];
-//        if (kingRemovePieceTo(prev, posNext))
-//            kingMoveOnEmptyCell = true;
-//        if (!kingCanRemovePiece(prev) && !pieceShouldRemovedPiece) {
             if (Math.abs(pX - nX) == Math.abs(pY - nY) && field[nY][nX] == null) {
                 boolean stepOnEmptyCell = true;
                 for (int i = board.nextCoordinate(pX, nX), j = board.nextCoordinate(pY, nY); i != nX; i = board.nextCoordinate(i, nX), j = board.nextCoordinate(j, nY)) {

@@ -68,7 +68,7 @@ public class KingRemoveBehavior implements RemoveBehavior{
         int nY = next.y;
         ArrayList<Position> removed = new ArrayList<>();
 //        Piece next = field[nY][nX];
-        if (Math.abs(pX-nX) == Math.abs(pY-nY) && next == null) {
+        if (Math.abs(pX-nX) == Math.abs(pY-nY) && field[nY][nX] == null) {
             boolean noObstaclesOnDiagonal = true;
             for (int i =board.nextCoordinate(pX, nX), j =board.nextCoordinate(pY,nY); i!=nX && noObstaclesOnDiagonal;i=board.nextCoordinate(i, nX), j=board.nextCoordinate(j, nY)) { // check correct remove route on diagonal
                 if (field[j][i] != null) {

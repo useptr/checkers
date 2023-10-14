@@ -45,7 +45,6 @@ public class MainScreen {
     public void setBoardMouseHandler(EventHandler<MouseEvent> boardMouseHandler) {
         this.boardMouseHandler = boardMouseHandler;
     }
-
     private EventHandler<MouseEvent> boardMouseHandler = null;
     public MainScreen(Stage stage, double width, double height) {
         this.width = width;
@@ -86,7 +85,7 @@ public class MainScreen {
              if (field[y][x] == null) {
                  pane.getChildren().clear();
              } else {
-                 drawPiece(pane, field[y][x].getColor(), field[y][x].getType());
+                 drawPiece(pane, field[y][x].color(), field[y][x].type());
              }
         }
     }
@@ -144,7 +143,6 @@ public class MainScreen {
     }
     public void initField(final int width, final int height) {
         int count = 0;
-
         for (int y = 0; y< width; y++) {
             for (int x = 0; x < height; x++) {
                 StackPane pane = new StackPane();
@@ -166,7 +164,6 @@ public class MainScreen {
     public GridPane getFieldGridPane() {
         return fieldGridPane;
     }
-
     public void setScoreLabel(String score) {
         scoreLabel.setText(score);
     }

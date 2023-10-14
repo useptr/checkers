@@ -10,18 +10,15 @@ public class Checkers {
     PieceColor isTurn = PieceColor.WHITE;
     private int whiteCount=0;
     private int blackCount=0;
-
     Piece pieceThatShouldRemove = null;
     public boolean movePiece(Position prev, Position next) {
         Piece prevPiece = getBoard().field()[prev.y][prev.x];
         boolean invalidPositions = prev == null || next == null || prevPiece == null || !board.isValidPosition(prev) || !board.isValidPosition(next) || board.positionsAreEqual(prev, next);
         if (invalidPositions)
             return false;
-
         System.out.println("try move checker from x1: " + prev.x+ " y1: " + prev.y + " to x2: " + next.x+ " y2: " + next.y); // log
         boolean pieceMoved = false;
         PieceColor color = prevPiece.color();
-
         boolean movedRightColor = color != null && color == isTurn;
         if (movedRightColor) {
             if (board.isPieceShouldRemovedPiece()) {
@@ -30,14 +27,12 @@ public class Checkers {
             }
         else {
             if (board.canRemovePiece(color)) {
-                if (board.pieceCanRemovePiece(prevPiece))
+                if (prevPiece.canRemove(board))
                     pieceMoved = getBoard().movePieceTo(prev, next);
             }
             else
                 pieceMoved = getBoard().movePieceTo(prev, next);
             }
-
-
             if (pieceMoved)  {
                 Piece piece = getBoard().field()[next.y][next.x];
                 if (board.isPieceShouldRemovedPiece()) {
@@ -69,20 +64,11 @@ public class Checkers {
         else
             isTurn = PieceColor.BLACK;
     }
-    public boolean isGameOver() {
-        boolean gameOver = false;
-        // moves are over
-        // opponent's checkers are over
-        return gameOver;
-    }
     public Board getBoard() {
         return board;
     }
     public BoardDTO getBoardDTO(){
         return new BoardDTO(board.getBoard(), isTurn);
-    }
-    public String getBoardString() {
-        return board.getBoard();
     }
     public String getScore() {
         String score = whiteCount + " : " + blackCount;

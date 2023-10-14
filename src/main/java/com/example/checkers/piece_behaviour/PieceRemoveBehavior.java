@@ -47,7 +47,7 @@ public class PieceRemoveBehavior implements RemoveBehavior {
         int pY = piece.position().y;
         int nX = next.x;
         int nY = next.y;
-        if (field[nY][nX] == null)
+        if (field[nY][nX] != null)
             return checkerRemovedPiece;
         if (pX + 2 == nX) {
             if (pY + 2 == nY) {
