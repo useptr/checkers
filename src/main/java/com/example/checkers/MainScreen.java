@@ -24,28 +24,27 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 public class MainScreen {
-    private double width=0;
-    private double height=0;
-    private Stage stage = null;
-    private Scene scene = null;
-    private VBox rootVBox = new VBox();
-    private MenuBar menuBar = new MenuBar();
+    private double width=0; // Ширина окна
+    private double height=0; // Высота окна
+    private Stage stage = null; // Главный стейдж
+    private Scene scene = null; // Сцена приложения
+    private VBox rootVBox = new VBox(); // Корневой контейнер для верстки
+    private MenuBar menuBar = new MenuBar(); // Меню приложения
     private Menu gameMenu = new Menu("Игра");
     private MenuItem restartMenuItem = new MenuItem("Сбросить Игру");
     private MenuItem resetMenuItem = new MenuItem("Сбросить Поле");
     private MenuItem importMenuItem = new MenuItem("Импорт");
     private MenuItem exportMenuItem = new MenuItem("Экспорт");
     private VBox infoVBox = new VBox();
-    private Label isTurnLabel = new Label("");
-    private Label scoreLabel = new Label("0 : 0");
+    private Label isTurnLabel = new Label(""); // Ход
+    private Label scoreLabel = new Label("0 : 0"); // Счет
    private StackPane fieldStackPane = new StackPane();
     private GridPane fieldGridPane = new GridPane();
     private final Image crownImage = new Image(getClass().getResource("/assets/crown.png").toString(), 50, 50, true, false);
-
+    private EventHandler<MouseEvent> boardMouseHandler = null;
     public void setBoardMouseHandler(EventHandler<MouseEvent> boardMouseHandler) {
         this.boardMouseHandler = boardMouseHandler;
     }
-    private EventHandler<MouseEvent> boardMouseHandler = null;
     public MainScreen(Stage stage, double width, double height) {
         this.width = width;
         this.height = height;

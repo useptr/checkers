@@ -7,13 +7,30 @@ import com.example.checkers.enums.PieceType;
 import java.util.ArrayList;
 
 public class Board {
-    public static final int WIDTH=8;
-    public static final int HEIGHT=8;
-    private int countWhitePieces=0;
-    private int countBlackPieces=0;
-    private Piece[][] field = new Piece[HEIGHT][WIDTH];
-    private boolean pieceRemovedPiece = false;
-    private boolean pieceShouldRemovedPiece = false;
+    public static final int WIDTH=8; // Размер поля (ширина)
+    public static final int HEIGHT=8; // Размер поля (высота)
+    private int countWhitePieces=0; // Количество белых шашек на поле
+    private int countBlackPieces=0; // Количество черных шашек на поле
+    private Piece[][] field = new Piece[HEIGHT][WIDTH]; //Двумерный массив шашек
+    private boolean pieceRemovedPiece = false; // Переменная состояния на удаление
+    private boolean pieceShouldRemovedPiece = false; // Переменная состояния необходимость удаления шашки противника
+    public boolean reachedLastRowOfOppositeSide(Piece piece) {
+        boolean isKing = false;
+        if (piece.color() == PieceColor.BLACK) {
+            if (piece.position().y == HEIGHT-1)
+                isKing = true;
+        } else {
+            if (piece.position().y == 0)
+                isKing = true;
+        }
+        return isKing;
+    } // Проверка на возможность стать дамкой
+    public boolean isValidPosition(Position pos) {
+        return pos.x < WIDTH && pos.x >= 0 && pos.y < HEIGHT && pos.y >= 0;
+    } // Проверка корректности позиции
+    public boolean positionsAreEqual(Position first, Position second) {
+        return first.x == second.x && first.y == second.y;
+    } // Проверка на равенство позиции
     public int getCountWhitePieces() {
         return countWhitePieces;
     }
@@ -227,21 +244,5 @@ public class Board {
         }
         return PieceMoved;
     }
-    public boolean reachedLastRowOfOppositeSide(Piece piece) {
-        boolean isKing = false;
-        if (piece.color() == PieceColor.BLACK) {
-            if (piece.position().y == HEIGHT-1)
-                isKing = true;
-        } else {
-            if (piece.position().y == 0)
-                isKing = true;
-        }
-        return isKing;
-    }
-    public boolean isValidPosition(Position pos) {
-        return pos.x < WIDTH && pos.x >= 0 && pos.y < HEIGHT && pos.y >= 0;
-    }
-    public boolean positionsAreEqual(Position first, Position second) {
-        return first.x == second.x && first.y == second.y;
-    }
+
 }

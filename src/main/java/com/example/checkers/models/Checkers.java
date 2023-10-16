@@ -6,11 +6,11 @@ import com.example.checkers.enums.PieceColor;
 import java.io.ObjectInputStream;
 
 public class Checkers {
-    Board board = new Board();
-    PieceColor isTurn = PieceColor.WHITE;
-    private int whiteCount=0;
-    private int blackCount=0;
-    Piece pieceThatShouldRemove = null;
+    Board board = new Board(); // Игровое поле
+    PieceColor isTurn = PieceColor.WHITE; // Текущий ход
+    private int whiteCount=0; // Количетсво побед белых
+    private int blackCount=0; // Количество побед черных
+    Piece pieceThatShouldRemove = null; // Переменная состояния
     public boolean movePiece(Position prev, Position next) {
         Piece prevPiece = getBoard().field()[prev.y][prev.x];
         boolean invalidPositions = prev == null || next == null || prevPiece == null || !board.isValidPosition(prev) || !board.isValidPosition(next) || board.positionsAreEqual(prev, next);
@@ -48,22 +48,22 @@ public class Checkers {
             checkEndGame();
         }
         return pieceMoved;
-    }
+    } // Перемещение шашки
     public void restart() {
         whiteCount=blackCount=0;
         isTurn=PieceColor.WHITE;
         board.reset();
-    }
+    } // Перезапуск игры
     public void reset() {
         isTurn=PieceColor.WHITE;
         board.reset();
-    }
+    } // Перезапуск поля
     public void changeMoveColor() {
         if (isTurn == PieceColor.BLACK)
             isTurn = PieceColor.WHITE;
         else
             isTurn = PieceColor.BLACK;
-    }
+    } // Смена хода
     public Board getBoard() {
         return board;
     }

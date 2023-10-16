@@ -7,12 +7,12 @@ import com.example.checkers.piece_behaviour.MoveOnEmptyCellBehavior;
 import com.example.checkers.piece_behaviour.RemoveBehavior;
 
 public class Piece {
-    private static final MoveBehaviorFactory factory = new MoveBehaviorFactory();
-    private Position pos;
-    private final PieceColor color;
-    private PieceType type;
-    private MoveOnEmptyCellBehavior sb;
-    private RemoveBehavior rb;
+    private static final MoveBehaviorFactory factory = new MoveBehaviorFactory(); // Фабрика для определения поведения шашки
+    private Position pos; // Координаты шашки: x,y
+    private final PieceColor color; // Цвет шашки: WHITE, BLACK
+    private PieceType type; // Тип шашки: NONE, CHECKER, KING
+    private MoveOnEmptyCellBehavior sb; // Поведение хода на пустую клетку
+    private RemoveBehavior rb; // Поведение удаления шашки противника
     public Piece(int x, int y, PieceColor color, PieceType type) {
         pos = new Position(x, y);
         this.color = color;
@@ -22,7 +22,7 @@ public class Piece {
     public void updateMoveBehavior() {
         sb = factory.getMoveOnEmptyCellBehavior(type, color);
         rb = factory.getRemoveBehavior(type);
-    }
+    } // Обновить поведение шашки
     public final boolean moveTo(Board board, Position next) {
         boolean pieceMoved = false;
         if (rb.removePieceTo(board, this, next)) {
@@ -30,14 +30,13 @@ public class Piece {
         } else if (!rb.canRemovePiece(board, this) && sb.moveOnEmptyCellTo(board, this, next))
             pieceMoved = true;
         return pieceMoved;
-    }
+    } // Переместить шашку на координату
     public final boolean canRemove(Board board) {
         return rb.canRemovePiece(board, this);
-    }
+    } // Проверка на удаление
     public final boolean canMove(Board board) {
         return sb.canMoveOnEmptyCell(board, this) || rb.canRemovePiece(board, this);
-    }
-
+    } // Проверка на перемещение
     public Position position() {
         return pos;
     }

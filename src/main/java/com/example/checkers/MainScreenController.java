@@ -16,27 +16,10 @@ import javafx.stage.Stage;
 import java.io.*;
 
 public class MainScreenController {
-    private Checkers model = new Checkers();
-    private MainScreen view;
-    Position prev=null;
-    Position next=null;
-    public MainScreenController(Stage stage) {
-        view = new MainScreen(stage, 600, 700);
-        view.setBoardMouseHandler(this::pieceMousePressed);
-        view.initField(model.getBoard().getWidth(), model.getBoard().getHeight());
-        view.setImportMenuItemEvent(this::importMenuItemSelected);
-        view.setExportMenuItem(this::exportMenuItemSelected);
-        view.setResetMenuItem(this::resetMenuItemSelected);
-        view.setRestartMenuItem(this::restartMenuItemSelected);
-//        view.drawPieces(model.getBoard());
-        updateView();
-    }
-    public void setScore() {
-        view.setScoreLabel(model.getScore());
-    }
-    public void setTurn() {
-        view.setIsTurnLabel(model.getTurn());
-    }
+    private Checkers model = new Checkers(); // Модель
+    private MainScreen view; // Представление
+    Position prev=null; // Текущая координата
+    Position next=null; // Следующая координата
     public void exportMenuItemSelected(ActionEvent event){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Экспортировать доску");//Заголовок диалога
@@ -52,15 +35,15 @@ public class MainScreenController {
                 out.close();
             }catch(Exception e){System.out.println(e);}
         }
-    }
+    } // Обработка события "Экспорт поля"
     public void resetMenuItemSelected(ActionEvent event) {
         model.reset();
         updateView();
-    }
+    }// Обработка события "Сброс поля"
     public void restartMenuItemSelected(ActionEvent event) {
         model.restart();
         updateView();
-    }
+    }// Обработка события "Перезапуск игры"
     public void importMenuItemSelected(ActionEvent event){
         FileChooser fileChooser = new FileChooser();//Класс работы с диалогом выборки и сохранения
         fileChooser.setTitle("Импортировать доску");//Заголовок диалога
@@ -77,7 +60,7 @@ public class MainScreenController {
         }
         updateView();
 //        view.drawPieces(model.getBoard());
-    }
+    }// Обработка события "Импорт поля"
     public StackPane getStackPane(Node node) {
         StackPane stackPane = null;
         if (node instanceof StackPane) {
@@ -87,6 +70,23 @@ public class MainScreenController {
             stackPane = (StackPane)node.getParent();
         }
         return stackPane;
+    }
+    public MainScreenController(Stage stage) {
+        view = new MainScreen(stage, 600, 700);
+        view.setBoardMouseHandler(this::pieceMousePressed);
+        view.initField(model.getBoard().getWidth(), model.getBoard().getHeight());
+        view.setImportMenuItemEvent(this::importMenuItemSelected);
+        view.setExportMenuItem(this::exportMenuItemSelected);
+        view.setResetMenuItem(this::resetMenuItemSelected);
+        view.setRestartMenuItem(this::restartMenuItemSelected);
+//        view.drawPieces(model.getBoard());
+        updateView();
+    }
+    public void setScore() {
+        view.setScoreLabel(model.getScore());
+    }
+    public void setTurn() {
+        view.setIsTurnLabel(model.getTurn());
     }
     public void printPos(Position pos, int num) { // log
         if (pos == null)
